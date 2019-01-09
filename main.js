@@ -5,6 +5,7 @@ const readline = require('readline')
 const defaultDbPath = './db'
 
 const fsUtils = require('./utils/fs')
+const objectUtils = require('./utils/object')
 
 class Table {
 
@@ -31,6 +32,68 @@ class Table {
         )
 
         writeStream.end()
+
+    }
+
+    find (query = {}, options = {}) {
+
+        return new Promise (
+            
+            ( resolve, reject ) => {
+
+                if (objectUtils.isEmpty(query)) {
+    
+                    this.get().then(resolve)
+
+                    return
+    
+                }
+
+                const storePath = path.join( this.db, this.store )
+
+                let pathForTable = path.resolve( path.join(storePath, `${this.name}.rdb`) ).toString()
+
+                const instream = fs.createReadStream(pathForTable)
+                const outstream = new (require('stream'))()
+                const rd = readline.createInterface(instream, outstream)
+
+                let records = []
+
+                rd.on('line', line => {
+
+                    const record = JSON.parse(line)
+
+                    let isMatch = true
+
+                    for ( let key in query ) {
+
+                        if (record[key]) {
+
+                            if ( record[key] !== query[key] ) {
+                                isMatch = false
+                            }
+
+                        } else {
+                            isMatch = false
+                        }
+
+                    }
+
+                    if (isMatch) {
+                        records.push(record)
+                    }
+                    
+                });
+
+                rd.on('close', function (line) {
+                    
+                    resolve(records)
+
+                });
+    
+            }
+
+        )
 
     }
 
@@ -181,7 +244,8 @@ class RapidDB {
 
 const db = new RapidDB()
 
-db.createStore('todo')
+// db.createStore('todo')
 db.setStore('todo')
+// db.createTable('users')
 
-db.table('users').get().then( records => console.log(records) )
+db.table('users').find({ id: 1547055218694 }).then(records => console.log(records))
