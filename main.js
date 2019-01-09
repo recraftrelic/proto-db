@@ -24,7 +24,7 @@ class Table {
         let pathForTable = path.resolve( path.join(storePath, `${this.name}.rdb`) ).toString()
 
         const writeStream = fs.createWriteStream(pathForTable, {
-            flags: 'a'
+            flags: 'a',
         })
 
         writeStream.write(
@@ -32,6 +32,139 @@ class Table {
         )
 
         writeStream.end()
+
+    }
+
+    delete (query = {}, options = {}) {
+
+        return new Promise (
+            
+            ( resolve, reject ) => {
+
+                if (objectUtils.isEmpty(query)) {
+    
+                    reject('Delete object is empty')
+
+                    return
+    
+                }
+
+                const storePath = path.join( this.db, this.store )
+
+                let pathForTable = path.resolve( path.join(storePath, `${this.name}.rdb`) ).toString()
+
+                const instream = fs.createReadStream(pathForTable)
+                const outstream = new (require('stream'))()
+                const rd = readline.createInterface(instream, outstream)
+
+                let deleteList = []
+
+                rd.on('line', line => {
+
+                    const record = JSON.parse(line)
+
+                    let isMatch = true
+
+                    for ( let key in query ) {
+
+                        if (record[key]) {
+
+                            if ( record[key] !== query[key] ) {
+                                isMatch = false
+                            }
+
+                        } else {
+                            isMatch = false
+                        }
+
+                    }
+
+                    if (isMatch) {
+
+                        deleteList.push({
+                            from: line,
+                            to: ''
+                        })
+
+                    }
+
+                });
+
+                rd.on('close', function (line) {
+                    fsUtils.updateFile(pathForTable, deleteList).then(resolve)
+                });
+    
+            }
+
+        )
+
+    }
+
+    update (query = {}, updatedRecord = {}, options = {}) {
+
+        return new Promise (
+            
+            ( resolve, reject ) => {
+
+                if (objectUtils.isEmpty(query)) {
+    
+                    reject('Update object is empty')
+
+                    return
+    
+                }
+
+                const storePath = path.join( this.db, this.store )
+
+                let pathForTable = path.resolve( path.join(storePath, `${this.name}.rdb`) ).toString()
+
+                const instream = fs.createReadStream(pathForTable)
+                const outstream = new (require('stream'))()
+                const rd = readline.createInterface(instream, outstream)
+
+                let updateList = []
+
+                rd.on('line', line => {
+
+                    const record = JSON.parse(line)
+
+                    let isMatch = true
+
+                    for ( let key in query ) {
+
+                        if (record[key]) {
+
+                            if ( record[key] !== query[key] ) {
+                                isMatch = false
+                            }
+
+                        } else {
+                            isMatch = false
+                        }
+
+                    }
+
+                    if (isMatch) {
+
+                        updateList.push({
+                            from: line,
+                            to: JSON.stringify({
+                                ...record,
+                                ...updatedRecord
+                            })
+                        })
+
+                    }
+
+                });
+
+                rd.on('close', function (line) {
+                    fsUtils.updateFile(pathForTable, updateList).then(resolve)
+                });
+    
+            }
+
+        )
 
     }
 
@@ -248,4 +381,8 @@ const db = new RapidDB()
 db.setStore('todo')
 // db.createTable('users')
 
-db.table('users').find({ id: 1547055218694 }).then(records => console.log(records))
+// db.table('users').create({
+//     name: 'Geeta'
+// })
+
+db.table('users').get().then(records => console.log(records))
