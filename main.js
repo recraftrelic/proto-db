@@ -263,13 +263,13 @@ class Table {
 
 }
 
-class RapidDB {
+class ProtoDB {
 
-    constructor () {
+    constructor (dbPath) {
 
         // db path
-        this.dbPath = defaultDbPath
-        // current Store which RapidDB is dealing with
+        this.dbPath = dbPath || defaultDbPath
+        // current Store which ProtoDB is dealing with
         this.currentStore = null
 
     }
@@ -292,7 +292,7 @@ class RapidDB {
 
         try {
 
-            const stats = await fsUtils.stat(storePath)
+            const stats = await fsUtils.stat(path.join(storePath, `${tableName}.rdb`))
 
             if (stats) {
 
@@ -375,14 +375,4 @@ class RapidDB {
 
 }
 
-const db = new RapidDB()
-
-// db.createStore('todo')
-db.setStore('todo')
-// db.createTable('users')
-
-// db.table('users').create({
-//     name: 'Geeta'
-// })
-
-db.table('users').get().then(records => console.log(records))
+module.exports = ProtoDB

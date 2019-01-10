@@ -1,6 +1,22 @@
 {
-  "name": "rapidDB",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT"
+  "name": "proto-db",
+  "description": "A simple DB which allows you to rapidly prototype applications",
+  "version": "0.0.2",
+  "main": "main.js",
+  "license": "MIT",
+  "author": "Manoj Singh Negi",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/recraftrelic/proto-db/issues"
+  },
+  "bugs": {
+    "url": "https://github.com/recraftrelic/proto-db/issues"
+  },
+  "keywords": [
+    "database",
+    "node db",
+    "nosql",
+    "text db",
+    "proto-db"
+  ]
 }
