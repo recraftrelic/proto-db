@@ -1,7 +1,7 @@
 {
   "name": "proto-db",
   "description": "A simple DB which allows you to rapidly prototype applications",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "main.js",
   "license": "MIT",
   "author": "Manoj Singh Negi",

@@ -7,6 +7,8 @@ const defaultDbPath = './db'
 const fsUtils = require('./utils/fs')
 const objectUtils = require('./utils/object')
 
+const validator = require('./utils/protoValidator')
+
 class Table {
 
     constructor (name, store, db) {
@@ -202,7 +204,10 @@ class Table {
 
                         if (record[key]) {
 
-                            if ( record[key] !== query[key] ) {
+                            if (typeof query[key] == 'object' && !(query[key] instanceof Array)) {
+                                isMatch = validator.match(query[key], record[key])
+
+                            } else if ( record[key] !== query[key] ) {
                                 isMatch = false
                             }
 
